@@ -64,18 +64,3 @@ while True:
 
 cam.release()
 cv2.destroyAllWindows()
-
-
-def insertCameraPhoto():
-    save_folder = "D:\Data\Python Programming\python project\computervision\dataset" # file where i you want to insert
-    save_path = os.path.join(save_folder, 'test.jpg')
-
-    camera = cv2.VideoCapture(0)
-    ret, frame = camera.read()
-
-    cv2.imwrite(save_path, frame)
-
-    camera.release()
-    cv2.destroyAllWindows()
-
-insertCameraPhoto()
