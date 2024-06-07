@@ -37,3 +37,59 @@ while True:
 
 cam.release()
 cv2.destroyAllWindows()
+
+
+# get data from excel
+
+import cv2
+import numpy as np
+import os
+import pandas as pd
+
+# Load the face detection and recognition models
+face_detect = cv2.CascadeClassifier(r"D:\Data\Python Programming\python project\computervision\haarcascade_frontalface_default.xml")
+cam = cv2.VideoCapture(0)
+recognizer = cv2.face.LBPHFaceRecognizer_create()
+recognizer.read(r"D:\Data\Python Programming\python project\computervision\recognizer\trainingData.yml")
+
+# Load the Excel file
+df = pd.read_excel(r"D:\Data\Python Programming\python project\computervision\DataFile.xlsx")
+
+def get_profile(id):
+    profile = df[df['ID'] == id]
+    if not profile.empty:
+        return profile.iloc[0]
+    return None
+
+def main():
+    threshold = 50  # Set a threshold for confidence (lower is better)
+
+    while True:
+        ret, img = cam.read()
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = face_detect.detectMultiScale(gray, 1.3, 5)
+
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            id, conf = recognizer.predict(gray[y:y+h, x:x+w])
+
+            if conf < threshold:  # Only consider it a match if confidence is below the threshold
+                profile = get_profile(id)
+                if profile is not None:
+                    cv2.putText(img, f"Name: {profile['name']}", (x, y + h + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 127), 2)
+                    cv2.putText(img, f"Age: {profile['age']}", (x, y + h + 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 127), 2)
+                    cv2.putText(img, f"Conf: {conf:.2f}", (x, y + h + 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 127), 2)
+            else:
+                cv2.putText(img, "Unknown", (x, y + h + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                cv2.putText(img, f"Conf: {conf:.2f}", (x, y + h + 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+
+        cv2.imshow("Faces", img)
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    cam.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
+
