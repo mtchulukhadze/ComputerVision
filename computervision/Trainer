@@ -1,0 +1,55 @@
+# new code
+
+import os
+import cv2
+import numpy as np
+from PIL import Image
+
+# Create LBPH face recognizer
+recognizer = cv2.face.LBPHFaceRecognizer_create()
+dataset_path = r"D:\Data\Python Programming\python project\computervision\dataset"
+recognizer_path = r"D:\Data\Python Programming\python project\computervision\recognizer"
+
+
+def get_images_and_labels(path):
+    # Get list of all image file paths
+    image_paths = [os.path.join(path, f) for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    faces = []
+    ids = []
+
+    for image_path in image_paths:
+        try:
+            # Convert image to grayscale
+            face_img = Image.open(image_path).convert('L')
+            face_np = np.array(face_img, np.uint8)
+
+            # Extract ID from image file name
+            id = int(os.path.split(image_path)[-1].split(".")[0])
+            print(f"Processing ID: {id}")
+
+            faces.append(face_np)
+            ids.append(id)
+
+            # Display the image during training (optional)
+            cv2.imshow("Training", face_np)
+            cv2.waitKey(10)
+
+        except Exception as e:
+            print(f"Error processing image {image_path}: {e}")
+
+    return np.array(ids), faces
+
+
+# Get images and labels
+ids, faces = get_images_and_labels(dataset_path)
+
+recognizer.train(faces, ids)
+
+# Ensure the recognizer directory exists
+if not os.path.exists(recognizer_path):
+    os.makedirs(recognizer_path)
+
+# Save the trained model
+recognizer.save(os.path.join(recognizer_path, "trainingData.yml"))
+
+cv2.destroyAllWindows()
