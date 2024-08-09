@@ -1,0 +1,74 @@
+
+import time
+import cv2
+
+# xml file
+# https://github.com/opencv/opencv/blob/master/data/haarcascades/haarcascade_frontalface_default.xml
+
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+cap = cv2.VideoCapture(0)
+
+time.sleep(1)
+
+# Constants for camera calibration
+FOCAL_LENGTH = 600  # Adjust this value based on your camera and lens
+FACE_HEIGHT_AT_1M = 21  # Adjust this value based on the expected face height at 1 meter
+
+# Constants for servo calibration
+SERVO_MIN_ANGLE = 0  # Adjust this value based on the minimum servo angle
+SERVO_MAX_ANGLE = 30  # Adjust this value based on the maximum servo angle
+
+
+def calculate_distance(face_height):
+    return (FACE_HEIGHT_AT_1M * FOCAL_LENGTH) / face_height
+
+
+def map_servo_angle(angle):
+    # Map the servo angle to the desired tracking range
+    return int((angle / 90) * (SERVO_MAX_ANGLE - SERVO_MIN_ANGLE) + SERVO_MIN_ANGLE)
+
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if frame is not None:
+        frame = cv2.flip(frame, 1)
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        faces = face_cascade.detectMultiScale(gray, 1.1, 6)  # detect the face
+        for x, y, w, h in faces:
+            x_center = x + w // 2
+            y_center = y + h // 2
+            x_center_angle = ((x_center - 320) / 320) * 90  # Adjust the scaling factor as needed
+            y_center_angle = ((y_center - 240) / 240) * 90  # Adjust the scaling factor as needed
+            string = 'X{:.2f}Y{:.2f}'.format(x_center_angle, y_center_angle)
+
+            # Calculate the distance to the face
+            face_height_at_camera = h
+            distance = calculate_distance(face_height_at_camera)
+
+            print(f"{string} Distance: {distance:.2f} cm")
+
+            # Map the servo angle to the desired tracking range
+            servo_angle_x = map_servo_angle(x_center_angle)
+            servo_angle_y = map_servo_angle(y_center_angle)
+
+            # Move the servo to the calculated angles
+            # Adjust the delay based on your servo's speed
+
+            cv2.circle(frame, (x + w // 2, y + h // 2), 2, (0, 255, 0), 2)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 3)
+
+        cv2.rectangle(frame, (640 // 2 - 30, 480 // 2 - 30),
+                      (640 // 2 + 30, 480 // 2 + 30),
+                      (255, 255, 255), 3)
+
+        cv2.imshow('img', frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    else:
+        print("Frame is empty or None.")
+
+cap.release()
+cv2.destroyAllWindows()
