@@ -1,0 +1,29 @@
+
+import cv2
+import numpy as np
+image = cv2.imread(r"C:\Users\User\Desktop\download.jfif")
+image_chicken = cv2.imread(r"C:\Users\User\Desktop\chicken.jfif")
+
+image2 = cv2.cvtColor(image, cv2.COLOR_YCrCb2RGB)
+
+# matrix
+print(image)
+print(image_chicken)
+# picture
+cv2.imshow("image", image2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+cv2.imshow("chicken", image_chicken)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+# resize
+image = cv2.resize(image, (300, 400))
+image_chicken = cv2.resize(image_chicken, (300, 400))
+
+# combined pictures
+addweithted = cv2.addWeighted(image, 0.5, image_chicken, 0.5, 0)
+cv2.imshow("im", addweithted)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
