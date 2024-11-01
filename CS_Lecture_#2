@@ -1,0 +1,55 @@
+import matplotlib
+matplotlib.use('TkAgg')
+import cv2
+import matplotlib.pyplot as plt
+
+image = cv2.imread("animal.jpeg", 0)
+
+changed_img = cv2.equalizeHist(image)
+
+plt.figure(figsize=(6, 6))
+
+plt.subplot(2, 2, 1)
+plt.imshow(image, cmap="gray")
+
+plt.subplot(2, 2, 3)
+plt.imshow(changed_img, cmap="gray")
+
+plt.subplot(2, 2, 2)
+plt.hist(image.ravel(), bins=256, range=(0, 256), color='black')
+plt.xlim([0, 256])
+
+plt.subplot(2, 2, 4)
+plt.hist(changed_img.ravel(), bins=256, range=(0, 256), color='red')
+plt.xlim([0, 256])
+
+plt.show()
+
+# split images
+
+img = cv2.imread("animal.jpeg", 0)
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+changed_img2 = clahe.apply(img)
+full_image = cv2.hconcat([img, changed_img2])
+plt.imshow(full_image, cmap='gray')
+plt.show()
+
+# cat
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+cat =cv2.imread("cat.jpg",0)
+print(cat.shape)
+noise = np.random.normal(loc=80, scale=8.1, size=cat.shape).astype(np.uint8)
+result = cv2.add(cat, noise)
+denosed = cv2.fastNlMeansDenoising(result, None, 10, 7, 21)
+
+plt.subplot(2, 2, 1)
+plt.imshow(result, cmap='gray')
+
+plt.subplot(2, 2, 3)
+plt.imshow(denosed, cmap='gray')
+
+plt.subplot(2, 2, 2)
+plt.imshow(cat, cmap='gray')
+plt.show()
