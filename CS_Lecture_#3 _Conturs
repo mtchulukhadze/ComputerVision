@@ -1,0 +1,19 @@
+
+import cv2
+import matplotlib.pyplot as plt
+
+cat = cv2.imread("cat.jpg")
+cat = cv2.cvtColor(cat, cv2.COLOR_BGR2RGB)
+cat_laplase = cv2.Laplacian(cat, ddepth=cv2.CV_64F)
+plt.subplot(1, 2, 1)
+plt.imshow(cat)
+plt.subplot(1, 2, 2)
+plt.imshow(cat_laplase)
+plt.show()
+
+
+cat2 = cv2.imread("cat.jpg", 0)
+cat2 = cv2.GaussianBlur(cat2, ksize=(3, 3), sigmaX=0.5)
+edges = cv2.Canny(cat2, threshold1=30, threshold2=90)
+plt.imshow(edges, cmap='gray')
+plt.show()
